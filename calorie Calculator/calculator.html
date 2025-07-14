@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meal Calculator App</title>
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="css/Formating.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Meal Alternatives</h1>
+
+      <!-- 1. Select Food Category -->
+      <div class="type-buttons">
+        <button class="type active" data-id="Protein" aria-pressed="true">
+          Protein
+        </button>
+        <button class="type" data-id="Carbs" aria-pressed="false">
+          Carbohydrates
+        </button>
+        <button class="type" data-id="Fats" aria-pressed="false">Fats</button>
+      </div>
+
+      <!-- 2. Select Meal and Enter Grams -->
+      <div>
+        <label for="meal">Select Meal:</label>
+        <select id="meal" aria-label="Select Meal">
+          <option value="">Select Meal</option>
+          <!-- يتم تعبئة الخيارات ديناميكيًا عبر JavaScript -->
+        </select>
+
+        <label for="grams_num">Enter Grams:</label>
+        <input
+          type="number"
+          id="grams_num"
+          placeholder="Enter grams"
+          min="1"
+          aria-label="Enter Grams"
+        />
+      </div>
+
+      <!-- 3. Select Alternative Meal -->
+      <div>
+        <label for="alt_meal">Select Alternative Meal:</label>
+        <select id="alt_meal" aria-label="Select Alternative Meal" disabled>
+          <option value="">Select Alternative Meal</option>
+          <!-- يتم تعبئة الخيارات ديناميكيًا عبر JavaScript -->
+        </select>
+      </div>
+
+      <!-- Calculate Button -->
+      <div>
+        <button id="calculate-btn" disabled>Calculate</button>
+      </div>
+
+      <!-- Result Section -->
+      <div class="result">
+        <p id="main-meal-grams"></p>
+        <p id="alt-meal-grams"></p>
+      </div>
+
+      <!-- Message Section -->
+      <div class="message" id="message"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="logo">
+        <img
+          src="https://hekacoaching.co.uk/wp-content/uploads/2024/01/Heka-coaching-logo-new.png"
+          alt="Heka Coaching Logo"
+          width="100"
+          height="100"
+        />
+      </div>
+      <a
+        href="https://www.facebook.com/share/15wURqbVxL/?mibextid=LQQJ4d"
+        target="_blank"
+        aria-label="Share on Facebook"
+      >
+        Facebook <i class="fab fa-facebook" aria-hidden="true"></i>
+      </a>
+      <a
+        href="https://www.instagram.com/hekacoaching/profilecard/?igsh=MTJ3M3k1MTVxNnJrag=="
+        target="_blank"
+        aria-label="Share on Instagram"
+      >
+        Instagram <i class="fab fa-instagram" aria-hidden="true"></i>
+      </a>
+    </footer>
+
+    <!-- EmailJS SDK -->
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"
+    ></script>
+
+    <script>
+      // Initialize EmailJS
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Meal Options Data (Sorted by Popularity and Expanded)
+        const mealOptions = {
+          Protein: [
+            { value: "Chicken Breast", label: "Chicken Breast", calories: 165 },
+            { value: "Beef Steak", label: "Beef Steak", calories: 271 },
+            { value: "Salmon", label: "Salmon", calories: 208 },
+            { value: "Egg", label: "Egg", calories: 77 },
+            { value: "Tofu", label: "Tofu", calories: 76 },
+            {
+              value: "Greek Yogurt (0% Fat)",
+              label: "Greek Yogurt (0% Fat)",
+              calories: 59,
+            },
+            { value: "Ground Turkey", label: "Ground Turkey", calories: 189 },
+            { value: "Cottage Cheese", label: "Cottage Cheese", calories: 98 },
+            { value: "Shrimp", label: "Shrimp", calories: 99 },
+            {
+              value: "Tuna (canned in water)",
+              label: "Tuna (canned in water)",
+              calories: 128,
+            },
+            { value: "Turkey Breast", label: "Turkey Breast", calories: 135 },
+            { value: "Quorn Burger", label: "Quorn Burger", calories: 275 },
+            { value: "Bison Steak", label: "Bison Steak", calories: 143 },
+            { value: "Tempeh", label: "Tempeh", calories: 192 },
+            { value: "Pork Loin", label: "Pork Loin", calories: 242 },
+            { value: "Beef Jerky", label: "Beef Jerky", calories: 410 },
+            { value: "Seitan", label: "Seitan", calories: 370 },
+            {
+              value: "Sardines (in oil)",
+              label: "Sardines (in oil)",
+              calories: 208,
+            },
+            { value: "Prawns", label: "Prawns", calories: 85 },
+            { value: "Ham", label: "Ham", calories: 145 },
+            { value: "Corned Beef", label: "Corned Beef", calories: 250 },
+            {
+              value: "Chicken Thighs (skinless)",
+              label: "Chicken Thighs (skinless)",
+              calories: 209,
+            },
+            { value: "Ground Pork", label: "Ground Pork", calories: 290 },
+            { value: "BBQ Chicken", label: "BBQ Chicken", calories: 219 },
+            { value: "Chicken Wings", label: "Chicken Wings", calories: 203 },
+            { value: "Beef Liver", label: "Beef Liver", calories: 191 },
+            { value: "Pork Ribs", label: "Pork Ribs", calories: 291 },
+            { value: "Goat Meat", label: "Goat Meat", calories: 122 },
+            { value: "Rabbit Meat", label: "Rabbit Meat", calories: 173 },
+            { value: "Kangaroo Meat", label: "Kangaroo Meat", calories: 98 },
+            { value: "Buffalo Meat", label: "Buffalo Meat", calories: 143 },
+            { value: "Alligator Meat", label: "Alligator Meat", calories: 146 },
+            { value: "Quail", label: "Quail", calories: 123 },
+            { value: "Goose", label: "Goose", calories: 350 },
+            { value: "Turkey Thighs", label: "Turkey Thighs", calories: 160 },
+            { value: "Ostrich Meat", label: "Ostrich Meat", calories: 142 },
+            { value: "Chicken Liver", label: "Chicken Liver", calories: 116 },
+            { value: "Duck Liver", label: "Duck Liver", calories: 134 },
+            { value: "Pheasant", label: "Pheasant", calories: 198 },
+            { value: "Venison", label: "Venison", calories: 158 },
+            { value: "Duck Breast", label: "Duck Breast", calories: 337 },
+            {
+              value: "Pork Tenderloin",
+              label: "Pork Tenderloin",
+              calories: 143,
+            },
+            { value: "Lamb Shoulder", label: "Lamb Shoulder", calories: 294 },
+          ],
+          Carbs: [
+            { value: "Oats (dry)", label: "Oats (dry)", calories: 389 },
+            {
+              value: "Brown Rice (long-grain, cooked)",
+              label: "Brown Rice (long-grain, cooked)",
+              calories: 112,
+            },
+            {
+              value: "Whole Wheat Bread",
+              label: "Whole Wheat Bread",
+              calories: 247,
+            },
+            {
+              value: "Whole Grain Bread",
+              label: "Whole Grain Bread",
+              calories: 250,
+            },
+            {
+              value: "White Rice (cooked)",
+              label: "White Rice (cooked)",
+              calories: 205,
+            },
+            { value: "White Bread", label: "White Bread", calories: 79 },
+            {
+              value: "Sweet Potatoes (cooked)",
+              label: "Sweet Potatoes (cooked)",
+              calories: 86,
+            },
+            { value: "Banana (raw)", label: "Banana (raw)", calories: 121 },
+            { value: "Apples (raw)", label: "Apples (raw)", calories: 52 },
+            { value: "Pears (raw)", label: "Pears (raw)", calories: 57 },
+            {
+              value: "Chickpeas (cooked)",
+              label: "Chickpeas (cooked)",
+              calories: 164,
+            },
+            {
+              value: "Lentils (cooked)",
+              label: "Lentils (cooked)",
+              calories: 116,
+            },
+            { value: "Black Beans", label: "Black Beans", calories: 227 },
+            { value: "Mango (raw)", label: "Mango (raw)", calories: 201 },
+            {
+              value: "Quinoa (cooked)",
+              label: "Quinoa (cooked)",
+              calories: 120,
+            },
+            {
+              value: "Whole Grain Pasta/Spaghetti (cooked)",
+              label: "Whole Grain Pasta/Spaghetti (cooked)",
+              calories: 124,
+            },
+            { value: "Raisins", label: "Raisins", calories: 434 },
+            {
+              value: "Pineapple (raw)",
+              label: "Pineapple (raw)",
+              calories: 50,
+            },
+            {
+              value: "Strawberries (raw)",
+              label: "Strawberries (raw)",
+              calories: 32,
+            },
+            {
+              value: "Blueberries (raw)",
+              label: "Blueberries (raw)",
+              calories: 57,
+            },
+            { value: "Peaches (raw)", label: "Peaches (raw)", calories: 39 },
+            { value: "Venison Jerky", label: "Venison Jerky", calories: 410 },
+            {
+              value: "Buckwheat Groats",
+              label: "Buckwheat Groats",
+              calories: 343,
+            },
+            {
+              value: "Barley (cooked)",
+              label: "Barley (cooked)",
+              calories: 123,
+            },
+            {
+              value: "Millet (cooked)",
+              label: "Millet (cooked)",
+              calories: 119,
+            },
+            {
+              value: "Amaranth (cooked)",
+              label: "Amaranth (cooked)",
+              calories: 102,
+            },
+            {
+              value: "Freekeh (cooked)",
+              label: "Freekeh (cooked)",
+              calories: 170,
+            },
+            {
+              value: "Bulgur Wheat (cooked)",
+              label: "Bulgur Wheat (cooked)",
+              calories: 83,
+            },
+            { value: "Farro (cooked)", label: "Farro (cooked)", calories: 124 },
+            {
+              value: "Spaghetti Squash (cooked)",
+              label: "Spaghetti Squash (cooked)",
+              calories: 31,
+            },
+            {
+              value: "Butternut Squash (cooked)",
+              label: "Butternut Squash (cooked)",
+              calories: 45,
+            },
+            {
+              value: "Acorn Squash (cooked)",
+              label: "Acorn Squash (cooked)",
+              calories: 40,
+            },
+            { value: "Kale (cooked)", label: "Kale (cooked)", calories: 35 },
+            {
+              value: "Swiss Chard (cooked)",
+              label: "Swiss Chard (cooked)",
+              calories: 19,
+            },
+            {
+              value: "Collard Greens (cooked)",
+              label: "Collard Greens (cooked)",
+              calories: 32,
+            },
+            { value: "Okra (cooked)", label: "Okra (cooked)", calories: 33 },
+            {
+              value: "Green Peas (cooked)",
+              label: "Green Peas (cooked)",
+              calories: 81,
+            },
+            {
+              value: "Black Eyed Peas (cooked)",
+              label: "Black Eyed Peas (cooked)",
+              calories: 115,
+            },
+            {
+              value: "Navy Beans (cooked)",
+              label: "Navy Beans (cooked)",
+              calories: 140,
+            },
+            {
+              value: "Green Lentils (cooked)",
+              label: "Green Lentils (cooked)",
+              calories: 116,
+            },
+            {
+              value: "Red Lentils (cooked)",
+              label: "Red Lentils (cooked)",
+              calories: 116,
+            },
+            { value: "Chia Seeds", label: "Chia Seeds", calories: 486 },
+            { value: "Flaxseeds", label: "Flaxseeds", calories: 534 },
+          ],
+          Fats: [
+            { value: "Avocado", label: "Avocado", calories: 160 },
+            { value: "Olive Oil", label: "Olive Oil", calories: 884 },
+            { value: "Butter", label: "Butter", calories: 717 },
+            { value: "Almonds", label: "Almonds", calories: 579 },
+            { value: "Walnuts", label: "Walnuts", calories: 654 },
+            { value: "Peanut Butter", label: "Peanut Butter", calories: 588 },
+            { value: "Cheddar Cheese", label: "Cheddar Cheese", calories: 402 },
+            {
+              value: "Dark Chocolate (70-85%)",
+              label: "Dark Chocolate (70-85%)",
+              calories: 598,
+            },
+            {
+              value: "Sunflower Seeds",
+              label: "Sunflower Seeds",
+              calories: 584,
+            },
+            { value: "Pistachios", label: "Pistachios", calories: 562 },
+            { value: "Macadamia Nuts", label: "Macadamia Nuts", calories: 718 },
+            { value: "Pecans", label: "Pecans", calories: 691 },
+            { value: "Hazelnuts", label: "Hazelnuts", calories: 628 },
+            { value: "Brazil Nuts", label: "Brazil Nuts", calories: 659 },
+            { value: "Pine Nuts", label: "Pine Nuts", calories: 673 },
+            { value: "Ghee", label: "Ghee", calories: 900 },
+            { value: "Tahini", label: "Tahini", calories: 595 },
+            {
+              value: "Coconut Oil (refined)",
+              label: "Coconut Oil (refined)",
+              calories: 862,
+            },
+            {
+              value: "Coconut Oil (virgin)",
+              label: "Coconut Oil (virgin)",
+              calories: 862,
+            },
+            { value: "Grapeseed Oil", label: "Grapeseed Oil", calories: 884 },
+            { value: "Sesame Oil", label: "Sesame Oil", calories: 884 },
+            { value: "Flaxseed Oil", label: "Flaxseed Oil", calories: 884 },
+            { value: "MCT Oil", label: "MCT Oil", calories: 862 },
+            { value: "Canola Oil", label: "Canola Oil", calories: 884 },
+            { value: "Avocado Oil", label: "Avocado Oil", calories: 884 },
+            { value: "Safflower Oil", label: "Safflower Oil", calories: 884 },
+            { value: "Soybean Oil", label: "Soybean Oil", calories: 884 },
+            { value: "Rice Bran Oil", label: "Rice Bran Oil", calories: 884 },
+            { value: "Walnut Oil", label: "Walnut Oil", calories: 884 },
+            { value: "Corn Oil", label: "Corn Oil", calories: 884 },
+            { value: "Palm Oil", label: "Palm Oil", calories: 884 },
+            { value: "Lard", label: "Lard", calories: 902 },
+            { value: "Shortening", label: "Shortening", calories: 884 },
+            { value: "Pesto", label: "Pesto", calories: 504 },
+            { value: "Cream Cheese", label: "Cream Cheese", calories: 342 },
+            { value: "Feta Cheese", label: "Feta Cheese", calories: 264 },
+            {
+              value: "Parmesan Cheese",
+              label: "Parmesan Cheese",
+              calories: 431,
+            },
+            { value: "Brie Cheese", label: "Brie Cheese", calories: 334 },
+            { value: "Blue Cheese", label: "Blue Cheese", calories: 353 },
+            { value: "Goat Cheese", label: "Goat Cheese", calories: 364 },
+            { value: "Ricotta Cheese", label: "Ricotta Cheese", calories: 174 },
+            { value: "Coconut Meat", label: "Coconut Meat", calories: 354 },
+            {
+              value: "Chopped Coconut",
+              label: "Chopped Coconut",
+              calories: 354,
+            },
+            { value: "Hemp Oil", label: "Hemp Oil", calories: 884 },
+            { value: "Fish Oil", label: "Fish Oil", calories: 884 },
+            { value: "Coconut Flour", label: "Coconut Flour", calories: 400 },
+            { value: "Flaxseed Meal", label: "Flaxseed Meal", calories: 534 },
+            { value: "Olive Tapenade", label: "Olive Tapenade", calories: 270 },
+            {
+              value: "Hazelnut Butter",
+              label: "Hazelnut Butter",
+              calories: 614,
+            },
+            { value: "Almond Butter", label: "Almond Butter", calories: 614 },
+            { value: "Cashew Butter", label: "Cashew Butter", calories: 553 },
+            {
+              value: "Sunflower Seed Butter",
+              label: "Sunflower Seed Butter",
+              calories: 614,
+            },
+          ],
+        };
+
+        // Translations (Currently English only; can be expanded for multiple languages)
+        const translations = {
+          en: {
+            selectMeal: "Select Meal:",
+            enterGrams: "Enter grams:",
+            selectAltMeal: "Select Alternative Meal:",
+            calculate: "Calculate",
+            feedback: "Feedback",
+            feedbackPlaceholder: "Enter your feedback here...",
+            submitFeedback: "Submit",
+            successCalc: "Calculation successful!",
+            errorFill: "Please fill in all required fields!",
+            errorNumber: "Please enter a valid positive number for grams.",
+            errorCategory: "Both meals must belong to the same category.",
+            errorSameMeal:
+              "The main meal and alternative meal cannot be the same.",
+          },
+        };
+
+        let currentLanguage = "en";
+
+        // DOM Elements
+        const mealSelect = document.getElementById("meal");
+        const altMealSelect = document.getElementById("alt_meal");
+        const messageDiv = document.getElementById("message");
+        const calculateBtn = document.getElementById("calculate-btn");
+
+        // Update Meals Based on Category
+        const updateMeals = (category) => {
+          mealSelect.innerHTML = `<option value="">${translations[currentLanguage].selectMeal}</option>`;
+          altMealSelect.innerHTML = `<option value="">${translations[currentLanguage].selectAltMeal}</option>`;
+
+          mealOptions[category].forEach((option) => {
+            const mealOption = document.createElement("option");
+            mealOption.value = option.value;
+            mealOption.textContent = option.label;
+            mealSelect.appendChild(mealOption);
+
+            const altMealOption = document.createElement("option");
+            altMealOption.value = option.value;
+            altMealOption.textContent = option.label;
+            altMealSelect.appendChild(altMealOption);
+          });
+        };
+
+        // Add Event Listeners to Category Buttons
+        document.querySelectorAll(".type").forEach((type) => {
+          type.addEventListener("click", function () {
+            document.querySelectorAll(".type").forEach((t) => {
+              t.classList.remove("active");
+              t.setAttribute("aria-pressed", "false");
+            });
+            this.classList.add("active");
+            this.setAttribute("aria-pressed", "true");
+            updateMeals(this.getAttribute("data-id"));
+            altMealSelect.disabled = false;
+            clearResults();
+            updateCalculateButtonState();
+          });
+        });
+
+        // Get Category of Selected Meal
+        const getCategory = (meal) => {
+          for (let category in mealOptions) {
+            if (mealOptions[category].some((option) => option.value === meal)) {
+              return category;
+            }
+          }
+          return null;
+        };
+
+        // Show Messages
+        const showMessage = (msg, type) => {
+          messageDiv.textContent = msg;
+          messageDiv.className =
+            "message " + (type === "error" ? "error" : "success");
+        };
+
+        // Clear Results and Messages
+        const clearResults = () => {
+          document.getElementById("main-meal-grams").textContent = "";
+          document.getElementById("alt-meal-grams").textContent = "";
+          messageDiv.textContent = "";
+          messageDiv.className = "message";
+        };
+
+        // Update Calculate Button State
+        const updateCalculateButtonState = () => {
+          const meal = mealSelect.value;
+          const altMeal = altMealSelect.value;
+          const grams = document.getElementById("grams_num").value;
+          calculateBtn.disabled = !(meal && altMeal && grams > 0);
+        };
+
+        // Calculate Alternative Meal Grams
+        const calculate = () => {
+          const meal = mealSelect.value;
+          const grams = parseFloat(
+            document.getElementById("grams_num").value,
+            10
+          );
+          const altMeal = altMealSelect.value;
+
+          if (!meal || !grams || !altMeal) {
+            showMessage(translations[currentLanguage].errorFill, "error");
+            return;
+          }
+
+          if (isNaN(grams) || grams <= 0) {
+            showMessage(translations[currentLanguage].errorNumber, "error");
+            return;
+          }
+
+          if (meal === altMeal) {
+            showMessage(translations[currentLanguage].errorSameMeal, "error");
+            return;
+          }
+
+          const category = getCategory(meal);
+          const altCategory = getCategory(altMeal);
+
+          if (category !== altCategory) {
+            showMessage(translations[currentLanguage].errorCategory, "error");
+            return;
+          }
+
+          const mainMeal = mealOptions[category].find(
+            (option) => option.value === meal
+          );
+          const altMealData = mealOptions[category].find(
+            (option) => option.value === altMeal
+          );
+
+          if (!mainMeal || !altMealData) {
+            showMessage("Selected meals are not valid.", "error");
+            return;
+          }
+
+          const altMealGrams =
+            (grams * mainMeal.calories) / altMealData.calories;
+
+          document.getElementById(
+            "main-meal-grams"
+          ).textContent = `${grams}g of ${
+            mainMeal.label
+          } = ${altMealGrams.toFixed(2)}g of ${altMealData.label}`;
+          document.getElementById(
+            "alt-meal-grams"
+          ).textContent = `${altMealGrams.toFixed(2)}g of ${
+            altMealData.label
+          } contains ${((altMealGrams * altMealData.calories) / 100).toFixed(
+            2
+          )} calories.`;
+
+          showMessage(translations[currentLanguage].successCalc, "success");
+        };
+
+        // Handle Feedback Form Submission
+
+        // Global Error Handling
+        window.onerror = function (message, source, lineno, colno, error) {
+          showMessage(
+            "An unexpected error occurred. Please try again later.",
+            "error"
+          );
+          console.error(message, source, lineno, colno, error);
+        };
+
+        // Initialize by selecting the first category
+        const initialActiveButton = document.querySelector(".type.active");
+        if (initialActiveButton) {
+          initialActiveButton.click();
+        } else {
+          console.error("No active category button found.");
+        }
+
+        // Add Event Listener to Calculate Button
+        calculateBtn.addEventListener("click", calculate);
+
+        // Add Event Listeners to Inputs to Update Calculate Button State
+        mealSelect.addEventListener("change", updateCalculateButtonState);
+        altMealSelect.addEventListener("change", updateCalculateButtonState);
+        document
+          .getElementById("grams_num")
+          .addEventListener("input", updateCalculateButtonState);
+      });
+    </script>
+  </body>
+</html>
